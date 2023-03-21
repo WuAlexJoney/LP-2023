@@ -8,16 +8,13 @@ def drawBoard(board):
     VLINE = '  |   |   |   |   |   |   |   |   |'
     print('    1   2   3   4   5   6   7   8')
     
-    
     print(HLINE)
     for y in range(8):
-        print(VLINE)
+        print(y+1, end=' ')
+        for x in range(8):
+            print('| %s' % (board[x][y]), end=' ')
+        print('|')
         print(HLINE)
-    print(y+1, end=' ')
-    for x in range(8):
-        print('| %s' % (board[x][y]), end=' ')
-    print('|')
-    print(HLINE)
 
 def resetBoard(board):
     # Blanks out the board it is passed, except for the original starting position.
@@ -32,6 +29,7 @@ def resetBoard(board):
     board[4][3] = 'O'
     board[4][4] = 'X'
 
+
 def getNewBoard():
     # Creates a brand new, blank board data structure.
     board = []
@@ -42,13 +40,10 @@ def getNewBoard():
 
 def isValidMove(board, tile, xstart, ystart):
     # Returns False if the player's move on space xstart, ystart is invalid.
-
     # If it is a valid move, returns a list of spaces that would become the player's if they made a move here.
     if board[xstart][ystart] != ' ' or not isOnBoard(xstart, ystart):
         return False
-
     board[xstart][ystart] = tile # temporarily set the tile on the board.
-
     if tile == 'X':
         otherTile = 'O'
     else:
@@ -60,41 +55,32 @@ def isValidMove(board, tile, xstart, ystart):
         x, y = xstart, ystart
         x += xdirection # first step in the direction
         y += ydirection # first step in the direction
-
         if isOnBoard(x, y) and board[x][y] == otherTile:
-
             # There is a piece belonging to the other player next to our piece.
             x += xdirection
             y += ydirection
-            
-        if not isOnBoard(x, y):
-            continue
-        
-        while board[x][y] == otherTile:
-            x += xdirection
-            y += ydirection
-
-            if not isOnBoard(x, y): # break out of while loop, then continue in for loop
-                break
-            else:
+            if not isOnBoard(x, y):
+                continue  
+            while board[x][y] == otherTile:
+                x += xdirection
+                y += ydirection
+                if not isOnBoard(x, y): # break out of while loop, then continue in for loop
+                    break
+            if not isOnBoard(x, y):
                 continue
-        
-    if board[x][y] == tile:
-        # There are pieces to flip over. Go in the reverse direction until we reach the original space, noting all the tiles along the way.
-        while True:
-            x -= xdirection
-            y -= ydirection
-
-            if x == xstart and y == ystart:
-                break
-
-        tilesToFlip.append([x, y])
-
-    board[xstart][ystart] = ' ' # restore the empty space
-
-    if len(tilesToFlip) == 0: # If no tiles were flipped, this is not a valid move.
-        return False
+            
+            if board[x][y] == tile:
+                # There are pieces to flip over. Go in the reverse direction until we reach the original space, noting all the tiles along the way.
+                while True:
+                    x -= xdirection
+                    y -= ydirection
+                    if x == xstart and y == ystart:
+                        break
+                    tilesToFlip.append([x, y])
     
+    board[xstart][ystart] = ' ' # restore the empty space
+    if len(tilesToFlip) == 0: # If no tiles were flipped, this is not a valid move.
+        return False   
     return tilesToFlip
 
 def isOnBoard(x, y):
@@ -104,14 +90,10 @@ def isOnBoard(x, y):
 
 def getBoardWithValidMoves(board, tile):
     # Returns a new board with . marking the valid moves the given player can make.
-
     dupeBoard = getBoardCopy(board)
-
     for x, y in getValidMoves(dupeBoard, tile):
         dupeBoard[x][y] = '.'
-
     return dupeBoard
-
 
 def getValidMoves(board, tile):
     # Returns a list of [x,y] lists of valid moves for the given player on the given board.
@@ -148,8 +130,8 @@ def enterPlayerTile():
     # Lets the player type which tile they want to be.
     # Returns a list with the player's tile as the first item, and the computer's tile as the second.
 
-    # while not (tile == 'X' or tile == 'O'):
-    #     # print('Do you want to be X or O?')
+    #while not (tile == 'X' or tile == 'O'):
+        #print('Do you want to be X or O?')
     
     tile = input('Do you want to be X or O?').upper()
         
@@ -233,20 +215,23 @@ def getPlayerMove(board, playerTile):
 
         if move == 'hints':
             return 'hints'
-
+        
+        #validating the player's move
         if len(move) == 2 and move[0] in DIGITS1TO8 and move[1] in DIGITS1TO8:
             x = int(move[0]) - 1
             y = int(move[1]) - 1
             getBoardWithValidMoves(board,playerTile)
-        if isValidMove(board, playerTile, x, y) == False:
-            continue
+            if isValidMove(board, playerTile, x, y) == False:
+                
+                continue
+            else:
+                break
         else:
-            break
-    else:
-        print('That is not a valid move. Type the x digit (1-8), then the y digit (1-8).')
-        print('For example, 81 will be the top-right corner.')
+            print('That is not a valid move. Type the x digit (1-8), then the y digit (1-8).')
+            print('For example, 81 will be the top-right corner.')
+    return [x,y]
 
-    return [x, y]
+        
 
 
 def getComputerMove(board, computerTile):
@@ -275,11 +260,11 @@ def getComputerMove(board, computerTile):
         dupeBoard = getBoardCopy(board)
         makeMove(dupeBoard, computerTile, x, y)
 
-    score = getScoreOfBoard(dupeBoard)[computerTile]
+        score = getScoreOfBoard(dupeBoard)[computerTile]
 
-    if score > bestScore:
-        bestMove = [x, y]
-        bestScore = score
+        if score > bestScore:
+            bestMove = [x, y]
+            bestScore = score
 
     return bestMove
 
@@ -291,15 +276,14 @@ def showPoints(playerTile, computerTile):
 
     print('You have %s points. The computer has %s points.' % (scores[playerTile], scores[computerTile]))
 
+print("welcome to reversi")
 
 ''' Program Starts Here'''
 # Reset the board and game.
-mainBoard = getNewBoard()
-resetBoard(mainBoard)
-
-playerTile, computerTile = enterPlayerTile()
-
 while True:
+    mainBoard = getNewBoard()
+    resetBoard(mainBoard)
+    playerTile, computerTile = enterPlayerTile()
     print("game starts")
     showHints = False
     turn = whoGoesFirst()
@@ -314,8 +298,8 @@ while True:
 
             else:
                 drawBoard(mainBoard)
-                showPoints(playerTile, computerTile)
-                move = getPlayerMove(mainBoard, playerTile)
+            showPoints(playerTile, computerTile)                
+            move = getPlayerMove(mainBoard, playerTile)
 
             if move == 'quit':
                 print('Thanks for playing!')
@@ -347,17 +331,17 @@ while True:
             else:
                 turn = 'player'
 
-            # Display the final score.
-            drawBoard(mainBoard)
-            scores = getScoreOfBoard(mainBoard)
-            print('X scored %s points. O scored %s points.' % (scores['X'], scores['O']))
-            if scores[playerTile] > scores[computerTile]:
-                print('You beat the computer by %s points! Congratulations!' % (scores[playerTile] - scores[computerTile]))
-            elif scores[playerTile] < scores[computerTile]:
-                print('You lost. The computer beat you by %s points.' % (scores[computerTile] - scores[playerTile]))
-            else:
-                print('The game was a tie!')
-
-            if not playAgain():
-                break
+    # Display the final score.
+    drawBoard(mainBoard)
+    scores = getScoreOfBoard(mainBoard)
+    print('X scored %s points. O scored %s points.' % (scores['X'], scores['O']))
+    if scores[playerTile] > scores[computerTile]:
+        print('You beat the computer by %s points! Congratulations!' % (scores[playerTile] - scores[computerTile]))
+    elif scores[playerTile] < scores[computerTile]:
+        print('You lost. The computer beat you by %s points.' % (scores[computerTile] - scores[playerTile]))
+    else:
+        print('The game was a tie!')
+        
+    if not playAgain():
+        break
 
