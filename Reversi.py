@@ -7,15 +7,16 @@ def drawBoard(board):
     HLINE = '  +---+---+---+---+---+---+---+---+'
     VLINE = '  |   |   |   |   |   |   |   |   |'
     print('    1   2   3   4   5   6   7   8')
-
+    
+    
     print(HLINE)
     for y in range(8):
         print(VLINE)
+        print(HLINE)
     print(y+1, end=' ')
     for x in range(8):
         print('| %s' % (board[x][y]), end=' ')
     print('|')
-    print(VLINE)
     print(HLINE)
 
 def resetBoard(board):
@@ -54,7 +55,7 @@ def isValidMove(board, tile, xstart, ystart):
         otherTile = 'X'
 
     tilesToFlip = []
-
+    #Checks around the placed piece for an opposing piece
     for xdirection, ydirection in [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]:
         x, y = xstart, ystart
         x += xdirection # first step in the direction
@@ -68,17 +69,16 @@ def isValidMove(board, tile, xstart, ystart):
             
         if not isOnBoard(x, y):
             continue
+        
+        while board[x][y] == otherTile:
+            x += xdirection
+            y += ydirection
 
-    while board[x][y] == otherTile:
-        x += xdirection
-        y += ydirection
-
-        if not isOnBoard(x, y): # break out of while loop, then continue in for loop
-            break
-
-        if not isOnBoard(x, y):
-            continue
-
+            if not isOnBoard(x, y): # break out of while loop, then continue in for loop
+                break
+            else:
+                continue
+        
     if board[x][y] == tile:
         # There are pieces to flip over. Go in the reverse direction until we reach the original space, noting all the tiles along the way.
         while True:
@@ -94,7 +94,7 @@ def isValidMove(board, tile, xstart, ystart):
 
     if len(tilesToFlip) == 0: # If no tiles were flipped, this is not a valid move.
         return False
-
+    
     return tilesToFlip
 
 def isOnBoard(x, y):
@@ -237,7 +237,7 @@ def getPlayerMove(board, playerTile):
         if len(move) == 2 and move[0] in DIGITS1TO8 and move[1] in DIGITS1TO8:
             x = int(move[0]) - 1
             y = int(move[1]) - 1
-
+            getBoardWithValidMoves(board,playerTile)
         if isValidMove(board, playerTile, x, y) == False:
             continue
         else:
